@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Issue } from "../components/Issue";
 
 interface Issue {
   url: string;
@@ -47,29 +48,27 @@ interface Issue {
   body: string;
 }
 
-const URL = "https://api.github.com/repos/rails/rails/issues";
-
 export const IssueList: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
 
   useEffect(() => {
-    axios
-      .get(URL)
-      .then((results) => {
-        console.log("results", results);
-        const res = results.data;
-        setIssues(res);
-      })
-      .catch((error) => {
-        console.log("通信失敗");
-        console.log(error.status);
-      });
-  }, [issues]);
+    getIssuesFromAPI();
+  }, []);
+
+  const getIssuesFromAPI = async () => {
+    const result = await axios.get(
+      "https://api.github.com/repos/rails/rails/issues"
+    );
+    const issuesFromAPI = result.data;
+    setIssues(issuesFromAPI);
+  };
+
+  if (!issues) return <>Loading</>;
 
   return (
     <>
-      {issues.map((issue: Issue, index: number) => (
-        <div key={index}>{issue.title}</div>
+      {issues?.map((issue: Issue) => (
+        <Issue key={issue.id} id={issue.number} title={issue.title} />
       ))}
     </>
   );
