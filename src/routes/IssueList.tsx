@@ -69,7 +69,6 @@ export const IssueList: React.FC = () => {
       } else {
         closedIssuesFromAPI.push(issue);
       }
-      console.log("d", openIssuesFromAPI);
     });
     setOpenIssues(openIssuesFromAPI);
     setClosedIssues(closedIssuesFromAPI);

@@ -9,7 +9,10 @@ interface IssueProps {
 export const Issue: React.FC<IssueProps> = ({ id, title }) => {
   const history = useHistory();
   const handleClick = () => {
-    history.push(`/detail/${id}`);
+    history.push({
+      pathname: `/detail/${id}`,
+      state: { id, title },
+    });
   };
 
   return (
