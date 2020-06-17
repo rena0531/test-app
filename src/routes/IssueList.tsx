@@ -33,7 +33,7 @@ interface Issue {
     type: string;
     site_admin: boolean;
   };
-  labels: string | string[];
+  labels: string[];
   state: string;
   locked: boolean;
   assignee: null;
@@ -49,26 +49,48 @@ interface Issue {
 }
 
 export const IssueList: React.FC = () => {
-  const [issues, setIssues] = useState<Issue[]>([]);
+  const [openIssues, setOpenIssues] = useState<Issue[]>([]);
+  const [closedIssues, setClosedIssues] = useState<Issue[]>([]);
 
   useEffect(() => {
-    getIssuesFromAPI();
+    getOpenOrClosedIssuesFromAPI();
   }, []);
 
-  const getIssuesFromAPI = async () => {
+  const getOpenOrClosedIssuesFromAPI = async () => {
     const result = await axios.get(
       "https://api.github.com/repos/rails/rails/issues"
     );
-    const issuesFromAPI = result.data;
-    setIssues(issuesFromAPI);
+    const openIssuesFromAPI: Issue[] = [];
+    const closedIssuesFromAPI: Issue[] = [];
+    // eslint-disable-next-line array-callback-return
+    result.data.map((issue: Issue) => {
+      if (issue.state === "open") {
+        openIssuesFromAPI.push(issue);
+      } else {
+        closedIssuesFromAPI.push(issue);
+      }
+      console.log("d", openIssuesFromAPI);
+    });
+    setOpenIssues(openIssuesFromAPI);
+    setClosedIssues(closedIssuesFromAPI);
   };
 
-  if (!issues) return <>Loading</>;
+  if (!openIssues) return <>...Loading</>;
 
   return (
     <>
-      {issues?.map((issue: Issue) => (
-        <Issue key={issue.id} id={issue.number} title={issue.title} />
+      <h1>Issue Lists</h1>
+      <div>
+        open:<span>{openIssues.length}</span>
+      </div>
+      <div>
+        close:<span>{closedIssues.length}</span>
+      </div>
+      {openIssues?.map((openIssue: Issue, index: number) => (
+        <Issue key={index} id={openIssue.number} title={openIssue.title} />
+      ))}
+      {closedIssues?.map((closedIssue: Issue, index: number) => (
+        <Issue key={index} id={closedIssue.number} title={closedIssue.title} />
       ))}
     </>
   );
